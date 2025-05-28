@@ -10,14 +10,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TitledPane;
-import javafx.scene.layout.Region;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar.ButtonData ;
 import javafx.scene.control.ButtonType ;
 import java.util.List;
+
+import javax.swing.plaf.synth.Region;
+
 import java.util.Arrays;
 import java.io.File;
 import java.util.ArrayList;
@@ -130,15 +130,65 @@ public class Pendu extends Application {
         // Pane res = new Pane();
         // return res;
     // }
+private Pane fenetreAccueil() {
+    VBox blocGlobal = new VBox(20);
+    blocGlobal.setPadding(new Insets(20));
+    blocGlobal.setAlignment(Pos.TOP_CENTER);
 
-    // /**
-     // * @return la fenêtre d'accueil sur laquelle on peut choisir les paramètres de jeu
-     // */
-    // private Pane fenetreAccueil(){
-        // A implementer    
-        // Pane res = new Pane();
-        // return res;
-    // }
+    // Titre
+    Text texteTitre = new Text("Jeu du Pendu");
+    texteTitre.setFont(Font.font("Arial", 28));
+
+    // Barre de boutons à droite
+    ImageView iconeMaison = new ImageView(new Image("file:./img/home.png", 30, 30, true, true));
+    ImageView iconeParam = new ImageView(new Image("file:./img/parametres.png", 30, 30, true, true));
+    ImageView iconeInfos = new ImageView(new Image("file:./img/info.png", 30, 30, true, true));
+
+    Button btnAccueil = new Button();
+    btnAccueil.setGraphic(iconeMaison);
+    this.boutonMaison = btnAccueil;
+
+    Button btnParametres = new Button();
+    btnParametres.setGraphic(iconeParam);
+    this.boutonParametres = btnParametres;
+
+    Button btnInfos = new Button();
+    btnInfos.setGraphic(iconeInfos);
+
+    HBox zoneBoutons = new HBox(10, btnAccueil, btnParametres, btnInfos);
+    zoneBoutons.setAlignment(Pos.TOP_RIGHT);
+
+    BorderPane enTete = new BorderPane();
+    enTete.setLeft(texteTitre);
+    enTete.setRight(zoneBoutons);
+    enTete.setPadding(new Insets(10));
+    enTete.setStyle("-fx-background-color: #eaeaff;");
+
+    // Bouton central pour jouer
+    Button boutonLancer = new Button("Lancer une partie");
+    this.bJouer = boutonLancer;
+    boutonLancer.setOnAction(e -> this.lancePartie());
+
+    // Zone des niveaux
+    RadioButton rbFacile = new RadioButton("Facile");
+    RadioButton rbMoyen = new RadioButton("Médium");
+    RadioButton rbDifficile = new RadioButton("Difficile");
+    RadioButton rbExpert = new RadioButton("Expert");
+
+    VBox niveaux = new VBox(10, rbFacile, rbMoyen, rbDifficile, rbExpert);
+    niveaux.setPadding(new Insets(10));
+
+    TitledPane blocNiveaux = new TitledPane("Niveau de difficulté", niveaux);
+    blocNiveaux.setExpanded(true);
+
+    VBox corps = new VBox(20, boutonLancer, blocNiveaux);
+
+    blocGlobal.getChildren().addAll(enTete, corps);
+
+    return blocGlobal;
+}
+
+
 
     /**
      * charge les images à afficher en fonction des erreurs
@@ -152,10 +202,10 @@ public class Pendu extends Application {
         }
     }
 
-    public void modeAccueil(){
-        // A implementer
-    }
-    
+public void modeAccueil() {
+    this.panelCentral.setCenter(this.fenetreAccueil());
+}
+
     public void modeJeu(){
         // A implementer
     }
@@ -215,11 +265,13 @@ public class Pendu extends Application {
      */
     @Override
     public void start(Stage stage) {
-        stage.setTitle("IUTEAM'S - La plateforme de jeux de l'IUTO");
-        stage.setScene(this.laScene());
+        this.panelCentral = new BorderPane(); 
         this.modeAccueil();
+        stage.setTitle("tp pendu horrible");
+        stage.setScene(this.laScene());
         stage.show();
     }
+
 
     /**
      * Programme principal

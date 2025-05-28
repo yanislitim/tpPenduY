@@ -250,8 +250,8 @@ public class MotMystere {
      */
     public String toString(){
         return "Mot a trouve: "+this.motATrouver+" Lettres trouvees: "+
-               this.motCrypte+" nombre de lettres restantes "+this.nbLettresRestantes+
-               " nombre d'essais restents: "+this.nbErreursRestantes;
+            this.motCrypte+" nombre de lettres restantes "+this.nbLettresRestantes+
+            " nombre d'essais restents: "+this.nbErreursRestantes;
     }
 
 }
