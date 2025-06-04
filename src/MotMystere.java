@@ -1,5 +1,6 @@
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Random;
 
 /**
  * Modèle pour le jeu du pendu.
@@ -96,7 +97,7 @@ public class MotMystere {
 
         nbLettresRestantes=0;
         
-        if (niveau == MotMystere.EXPERT || niveau == MotMystere.DIFFICILE){
+        if (niveau == MotMystere.EXPERT){
             motCrypte = "*"; // premiere lettre cachée
             this.nbLettresRestantes+=1;
         }
@@ -104,18 +105,39 @@ public class MotMystere {
             motCrypte += this.motATrouver.charAt(0); // premiere lettre révélée
         }
         
-        for (int i=1; i<motATrouver.length()-1; i++){
-            char lettre = this.motATrouver.charAt(i);
-            if (this.niveau == MotMystere.EXPERT || Character.isAlphabetic(lettre)){
-                motCrypte += "*"; // lettre cachée
-                this.nbLettresRestantes += 1;
-            }   
-            else{
-                motCrypte += lettre; // lettre révélée si c'est un trait d'union ET qu'on n'est pas en mode Expert
+        if (niveau != MotMystere.FACILE){
+            for (int i=1; i<motATrouver.length()-1; i++){
+                char lettre = this.motATrouver.charAt(i);
+                if (this.niveau == MotMystere.EXPERT || Character.isAlphabetic(lettre)){
+                    motCrypte += "*"; // lettre cachée
+                    this.nbLettresRestantes += 1;
+                }   
+                else{
+                    motCrypte += lettre; // lettre révélée si c'est un trait d'union ET qu'on n'est pas en mode Expert
+                }
+            }
+        }
+        else{
+            Random nombreRandom = new Random(); 
+            int lettreaChanger = nombreRandom.nextInt(2, motATrouver.length()-1);//nombre aléatoire de la lettre à changer
+            for (int i=1; i<motATrouver.length()-1; i++){
+                char lettre = this.motATrouver.charAt(i);
+                if (i == lettreaChanger){
+                    motCrypte+= lettre;
+                }
+                else{
+                    if (this.niveau == MotMystere.EXPERT || Character.isAlphabetic(lettre)){
+                        motCrypte += "*"; // lettre cachée
+                        this.nbLettresRestantes += 1;
+                    }   
+                    else{
+                        motCrypte += lettre; // lettre révélée si c'est un trait d'union ET qu'on n'est pas en mode Expert
+                    }
+                }
             }
         }
         
-        if (niveau != MotMystere.FACILE){ // dernière lettre révélée
+        if (niveau == MotMystere.DIFFICILE || niveau == MotMystere.EXPERT){ // dernière lettre révélée
             motCrypte += "*";
             this.nbLettresRestantes += 1;
         }
@@ -250,8 +272,8 @@ public class MotMystere {
      */
     public String toString(){
         return "Mot a trouve: "+this.motATrouver+" Lettres trouvees: "+
-            this.motCrypte+" nombre de lettres restantes "+this.nbLettresRestantes+
-            " nombre d'essais restents: "+this.nbErreursRestantes;
+               this.motCrypte+" nombre de lettres restantes "+this.nbLettresRestantes+
+               " nombre d'essais restents: "+this.nbErreursRestantes;
     }
 
 }

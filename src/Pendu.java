@@ -11,17 +11,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar.ButtonData ;
-import javafx.scene.control.ButtonType ;
+import javafx.scene.control.ButtonBar.ButtonData;
+
 import java.util.List;
-
-import javax.swing.plaf.synth.Region;
-
 import java.util.Arrays;
 import java.io.File;
 import java.util.ArrayList;
-
 
 /**
  * Vue du jeu du pendu
@@ -37,7 +32,7 @@ public class Pendu extends Application {
     private ArrayList<Image> lesImages;
     /**
      * Liste qui contient les noms des niveaux
-     */    
+     */
     public List<String> niveaux;
 
     // les différents contrôles qui seront mis à jour ou consultés pour l'affichage
@@ -75,209 +70,299 @@ public class Pendu extends Application {
     private Button boutonParametres;
     /**
      * le bouton Accueil / Maison
-     */    
+     */
     private Button boutonMaison;
     /**
      * le bouton qui permet de (lancer ou relancer une partie
-     */ 
+     */
     private Button bJouer;
 
     /**
-     * initialise les attributs (créer le modèle, charge les images, crée le chrono ...)
+     * initialise les attributs (créer le modèle, charge les images, crée le chrono
+     * ...)
      */
     @Override
     public void init() {
-        this.modelePendu = new MotMystere("/usr/share/dict/french", 3, 10, MotMystere.FACILE, 10);
+        try {
+            this.modelePendu = new MotMystere("/usr/share/dict/french", 3, 10, MotMystere.FACILE, 10);
+        } catch (Exception e) {
+            this.modelePendu = new MotMystere("JAVA", MotMystere.FACILE, 10);
+        }
+
         this.lesImages = new ArrayList<Image>();
         this.chargerImages("./img");
-        // A terminer d'implementer
+        this.niveaux = Arrays.asList("Facile", "Moyen", "Difficile", "Expert");
+        this.chrono = new Chronometre();
+        this.dessin = new ImageView();
+        this.motCrypte = new Text();
+        this.motCrypte.setFont(Font.font("Arial", 24));
+        this.pg = new ProgressBar();
+        this.leNiveau = new Text("Niveau: Facile");
+        this.clavier = new Clavier("ABCDEFGHIJKLMNOPQRSTUVWXYZ", new ControleurLettres(this.modelePendu, this));
+        this.panelCentral = new BorderPane();
+
+        this.boutonMaison = new Button();
+        try {
+            Image imageMaison = new Image("file:./img/home.png");
+            ImageView imageViewMaison = new ImageView();
+            imageViewMaison.setImage(imageMaison);
+            imageViewMaison.setFitWidth(20);
+            imageViewMaison.setFitHeight(20);
+            imageViewMaison.setPreserveRatio(true);
+            boutonMaison.setGraphic(imageViewMaison);
+        } catch (Exception e) {
+            boutonMaison.setText("🏠");
+        }
+        boutonMaison.setOnAction(new RetourAccueil(this.modelePendu, this));
+        boutonMaison.setTooltip(new Tooltip("Retour à l'accueil"));
+
+        this.boutonParametres = new Button();
+        try {
+            Image imageParam = new Image("file:./img/parametres.png");
+            ImageView imageViewParam = new ImageView();
+            imageViewParam.setImage(imageParam);
+            imageViewParam.setFitWidth(20);
+            imageViewParam.setFitHeight(20);
+            imageViewParam.setPreserveRatio(true);
+            boutonParametres.setGraphic(imageViewParam);
+        } catch (Exception e) {
+            boutonParametres.setText("⚙");
+        }
+        boutonParametres.setTooltip(new Tooltip("Paramètres"));
+
+        this.bJouer = new Button("Lancer une partie");
+        this.bJouer.setOnAction(new ControleurLancerPartie(this.modelePendu, this));
     }
 
-    /**
-     * @return  le graphe de scène de la vue à partir de methodes précédantes
-     */
-    private Scene laScene(){
+
+    private Scene laScene() {
         BorderPane fenetre = new BorderPane();
         fenetre.setTop(this.titre());
         fenetre.setCenter(this.panelCentral);
         return new Scene(fenetre, 800, 1000);
     }
 
-    /**
-     * @return le panel contenant le titre du jeu
-     */
-    private Pane titre(){
-        // A implementer          
-        Pane banniere = new Pane();
+    private Pane titre() {
+        BorderPane banniere = new BorderPane();
+        banniere.setPadding(new Insets(10));
+
+        Text titre = new Text("Jeu du pendu");
+        titre.setFont(Font.font("Arial", 24));
+        titre.setFill(Color.DARKBLUE);
+
+        Button information = new Button();
+        try {
+            Image imageInfo = new Image("file:./img/info.png");
+            ImageView imageViewInfo = new ImageView();
+            imageViewInfo.setImage(imageInfo);
+            imageViewInfo.setFitWidth(20);
+            imageViewInfo.setFitHeight(20);
+            imageViewInfo.setPreserveRatio(true);
+            information.setGraphic(imageViewInfo);
+        } catch (Exception e) {
+            information.setText("i");
+        }
+        information.setOnAction(new ControleurInfos(this));
+        information.setTooltip(new Tooltip("Règles du jeu"));
+
+        HBox boutons = new HBox(10);
+        boutons.getChildren().addAll(this.boutonMaison, this.boutonParametres, information);
+
+        banniere.setLeft(titre);
+        banniere.setRight(boutons);
+        banniere.setStyle("-fx-background-color:#d9f7fb;");
+
         return banniere;
     }
 
-    // /**
-     // * @return le panel du chronomètre
-     // */
-    // private TitledPane leChrono(){
-        // A implementer
-        // TitledPane res = new TitledPane();
-        // return res;
-    // }
 
-    // /**
-     // * @return la fenêtre de jeu avec le mot crypté, l'image, la barre
-     // *         de progression et le clavier
-     // */
-    // private Pane fenetreJeu(){
-        // A implementer
-        // Pane res = new Pane();
-        // return res;
-    // }
-private Pane fenetreAccueil() {
-    VBox blocGlobal = new VBox(20);
-    blocGlobal.setPadding(new Insets(20));
-    blocGlobal.setAlignment(Pos.TOP_CENTER);
+    private TitledPane leChrono() {
+        TitledPane res = new TitledPane();
+        res.setText("Chronomètre");
+        res.setContent(this.chrono);
+        res.setCollapsible(false);
+        return res;
+    }
 
-    // Titre
-    Text texteTitre = new Text("Jeu du Pendu");
-    texteTitre.setFont(Font.font("Arial", 28));
+    private Pane fenetreJeu() {
+        BorderPane res = new BorderPane();
 
-    // Barre de boutons à droite
-    ImageView iconeMaison = new ImageView(new Image("file:./img/home.png", 30, 30, true, true));
-    ImageView iconeParam = new ImageView(new Image("file:./img/parametres.png", 30, 30, true, true));
-    ImageView iconeInfos = new ImageView(new Image("file:./img/info.png", 30, 30, true, true));
+        VBox partie1 = new VBox(20);
+        partie1.setPadding(new Insets(20));
 
-    Button btnAccueil = new Button();
-    btnAccueil.setGraphic(iconeMaison);
-    this.boutonMaison = btnAccueil;
+        this.motCrypte.setFont(Font.font("Arial", 32));
 
-    Button btnParametres = new Button();
-    btnParametres.setGraphic(iconeParam);
-    this.boutonParametres = btnParametres;
+        // Image du pendu
+        this.dessin.setFitWidth(200);
+        this.dessin.setFitHeight(200);
+        this.dessin.setPreserveRatio(true);
 
-    Button btnInfos = new Button();
-    btnInfos.setGraphic(iconeInfos);
+        this.pg.setPrefWidth(300);
+        this.pg.setProgress(1.0);
+        VBox progressBox = new VBox(5);
+        progressBox.getChildren().addAll(this.pg);
 
-    HBox zoneBoutons = new HBox(10, btnAccueil, btnParametres, btnInfos);
-    zoneBoutons.setAlignment(Pos.TOP_RIGHT);
+        partie1.getChildren().addAll(this.motCrypte, this.dessin, progressBox, this.clavier);
 
-    BorderPane enTete = new BorderPane();
-    enTete.setLeft(texteTitre);
-    enTete.setRight(zoneBoutons);
-    enTete.setPadding(new Insets(10));
-    enTete.setStyle("-fx-background-color: #eaeaff;");
+        VBox partie2 = new VBox(20);
+        partie2.getChildren().addAll(this.leNiveau, this.leChrono());
 
-    // Bouton central pour jouer
-    Button boutonLancer = new Button("Lancer une partie");
-    this.bJouer = boutonLancer;
-    boutonLancer.setOnAction(e -> this.lancePartie());
+        res.setCenter(partie1);
+        res.setRight(partie2);
 
-    // Zone des niveaux
-    RadioButton rbFacile = new RadioButton("Facile");
-    RadioButton rbMoyen = new RadioButton("Médium");
-    RadioButton rbDifficile = new RadioButton("Difficile");
-    RadioButton rbExpert = new RadioButton("Expert");
+        return res;
+    }
 
-    VBox niveaux = new VBox(10, rbFacile, rbMoyen, rbDifficile, rbExpert);
-    niveaux.setPadding(new Insets(10));
-
-    TitledPane blocNiveaux = new TitledPane("Niveau de difficulté", niveaux);
-    blocNiveaux.setExpanded(true);
-
-    VBox corps = new VBox(20, boutonLancer, blocNiveaux);
-
-    blocGlobal.getChildren().addAll(enTete, corps);
-
-    return blocGlobal;
-}
+    private Pane fenetreAccueil() {
+        VBox res = new VBox(30);
 
 
+        Text labelNiveau = new Text("Niveau de difficulté :");
+        labelNiveau.setFont(Font.font("Arial", 18));
 
-    /**
-     * charge les images à afficher en fonction des erreurs
-     * @param repertoire répertoire où se trouvent les images
-     */
-    private void chargerImages(String repertoire){
-        for (int i=0; i<this.modelePendu.getNbErreursMax()+1; i++){
-            File file = new File(repertoire+"/pendu"+i+".png");
-            System.out.println(file.toURI().toString());
-            this.lesImages.add(new Image(file.toURI().toString()));
+        ToggleGroup groupeNiveau = new ToggleGroup();
+        VBox niveauxBox = new VBox(10);
+
+        RadioButton facile = new RadioButton("Facile");
+        facile.setToggleGroup(groupeNiveau);
+        facile.setSelected(true);
+        facile.setOnAction(new ControleurNiveau(this.modelePendu));
+
+        RadioButton moyen = new RadioButton("Moyen");
+        moyen.setToggleGroup(groupeNiveau);
+        moyen.setOnAction(new ControleurNiveau(this.modelePendu));
+
+        RadioButton difficile = new RadioButton("Difficile");
+        difficile.setToggleGroup(groupeNiveau);
+        difficile.setOnAction(new ControleurNiveau(this.modelePendu));
+
+        RadioButton expert = new RadioButton("Expert");
+        expert.setToggleGroup(groupeNiveau);
+        expert.setOnAction(new ControleurNiveau(this.modelePendu));
+
+        niveauxBox.getChildren().addAll(facile, moyen, difficile, expert);
+        this.bJouer.setFont(Font.font("Arial", 18));
+
+        res.getChildren().addAll(this.bJouer, labelNiveau, niveauxBox);
+        res.setPadding(new Insets(20));
+
+        return res;
+    }
+
+
+    private void chargerImages(String repertoire) {
+        for (int i = 0; i < this.modelePendu.getNbErreursMax() + 1; i++) {
+            try {
+                File file = new File(repertoire + "/pendu" + i + ".png");
+                if (file.exists()) {
+                    this.lesImages.add(new Image(file.toURI().toString()));
+                    System.out.println("Image chargée: " + file.toURI().toString());
+                } else {
+                    System.out.println("Image non trouvée: " + file.getAbsolutePath());
+                }
+            } catch (Exception e) {
+                System.out.println("Erreur lors du chargement de l'image " + i + ": " + e.getMessage());
+            }
         }
     }
 
-public void modeAccueil() {
-    this.panelCentral.setCenter(this.fenetreAccueil());
-}
-
-    public void modeJeu(){
-        // A implementer
-    }
-    
-    public void modeParametres(){
-        // A implémenter
+    public void modeAccueil() {
+        this.panelCentral.setCenter(this.fenetreAccueil());
+        this.boutonMaison.setDisable(true);
+        this.boutonParametres.setDisable(false);
     }
 
-    /** lance une partie */
-    public void lancePartie(){
-        // A implementer
+    public void modeJeu() {
+        this.panelCentral.setCenter(this.fenetreJeu());
+        this.boutonMaison.setDisable(false);
+        this.boutonParametres.setDisable(true);
+        this.majAffichage();
+        this.chrono.start();
     }
 
-    /**
-     * raffraichit l'affichage selon les données du modèle
-     */
-    public void majAffichage(){
-        // A implementer
+    public void modeParametres() {
+        this.modeAccueil();
+    }
+    public void lancePartie() {
+        try {
+            this.modelePendu.setMotATrouver();
+        } catch (Exception e) {
+            this.modelePendu.setMotATrouver("JAVA");
+        }
+        this.modeJeu();
     }
 
-    /**
-     * accesseur du chronomètre (pour les controleur du jeu)
-     * @return le chronomètre du jeu
-     */
-    public Chronometre getChrono(){
-        // A implémenter
-        return null; // A enlever
+    public void majAffichage() {
+        this.motCrypte.setText(this.modelePendu.getMotCrypte());
+        int nbErreurs = this.modelePendu.getNbErreursMax() - this.modelePendu.getNbErreursRestants();
+        if (nbErreurs < this.lesImages.size()) {
+            this.dessin.setImage(this.lesImages.get(nbErreurs));
+        }
+        double progression = (double) this.modelePendu.getNbErreursRestants() / this.modelePendu.getNbErreursMax();
+        this.pg.setProgress(progression);
+        String[] niveauxTexte = { "Facile", "Moyen", "Difficile", "Expert" };
+        this.leNiveau.setText("Niveau: " + niveauxTexte[this.modelePendu.getNiveau()]);
+
+        this.clavier.desactiveTouches(this.modelePendu.getLettresEssayees());
     }
 
-    public Alert popUpPartieEnCours(){
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,"La partie est en cours!\n Etes-vous sûr de l'interrompre ?", ButtonType.YES, ButtonType.NO);
+    public Chronometre getChrono() {
+        return this.chrono;
+    }
+
+    public Alert popUpPartieEnCours() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "La partie est en cours!\n Etes-vous sûr de l'interrompre ?", ButtonType.YES, ButtonType.NO);
         alert.setTitle("Attention");
         return alert;
     }
-        
-    public Alert popUpReglesDuJeu(){
-        // A implementer
+
+    public Alert popUpReglesDuJeu() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        return alert;
-    }
-    
-    public Alert popUpMessageGagne(){
-        // A implementer
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);        
-        return alert;
-    }
-    
-    public Alert popUpMessagePerdu(){
-        // A implementer    
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Règles du jeu");
+        alert.setHeaderText("Comment jouer au pendu ?");
+        alert.setContentText("Le but du jeu est de trouver un mot mystère en proposant des lettres.\n\n" +
+                "• Si la lettre est dans le mot, elle s'affiche\n" +
+                "• Si la lettre n'est pas dans le mot, le pendu se dessine\n" +
+                "• Vous gagnez si vous trouvez le mot complet\n" +
+                "• Vous perdez si le pendu est entièrement dessiné\n\n" +
+                "Niveaux de difficulté :\n" +
+                "• Facile : première, dernière et une lettre aléatoire révélées\n" +
+                "• Moyen : première et dernière lettres révélées\n" +
+                "• Difficile : première lettre révélé\n" +
+                "• Expert : aucune aide");
         return alert;
     }
 
-    /**
-     * créer le graphe de scène et lance le jeu
-     * @param stage la fenêtre principale
-     */
+    public Alert popUpMessageGagne() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Félicitations !");
+        alert.setHeaderText("Vous avez gagné !");
+        alert.setContentText("Bravo ! Vous avez trouvé le mot : " + this.modelePendu.getMotATrouve() +
+                "\nNombre d'essais : " + this.modelePendu.getNbEssais() +
+                "\nTemps écoulé : " + this.chrono.getText());
+        return alert;
+    }
+
+    public Alert popUpMessagePerdu() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Dommage !");
+        alert.setHeaderText("Vous avez perdu !");
+        alert.setContentText("Le mot à trouver était : " + this.modelePendu.getMotATrouve() +
+                "\nNombre d'essais : " + this.modelePendu.getNbEssais() +
+                "\nTemps écoulé : " + this.chrono.getText());
+        return alert;
+    }
+
     @Override
     public void start(Stage stage) {
-        this.panelCentral = new BorderPane(); 
-        this.modeAccueil();
-        stage.setTitle("tp pendu horrible");
+        stage.setTitle("IUTEAM'S - La plateforme de jeux de l'IUTO");
         stage.setScene(this.laScene());
+        this.modeAccueil();
         stage.show();
     }
 
-
-    /**
-     * Programme principal
-     * @param args inutilisé
-     */
     public static void main(String[] args) {
         launch(args);
-    }    
+    }
 }

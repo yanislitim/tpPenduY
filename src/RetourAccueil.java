@@ -21,9 +21,9 @@ public class RetourAccueil implements EventHandler<ActionEvent> {
      * @param vuePendu vue du jeu
      */
     public RetourAccueil(MotMystere modelePendu, Pendu vuePendu) {
-        // A implémenter
+        this.modelePendu = modelePendu;
+        this.vuePendu = vuePendu;
     }
-
 
     /**
      * L'action consiste à retourner sur la page d'accueil. Il faut vérifier qu'il n'y avait pas une partie en cours
@@ -31,6 +31,21 @@ public class RetourAccueil implements EventHandler<ActionEvent> {
      */
     @Override
     public void handle(ActionEvent actionEvent) {
-        // A implémenter
+        // Vérifier si une partie est en cours
+        if (modelePendu.getNbEssais() > 0 && !modelePendu.gagne() && !modelePendu.perdu()) {
+            // Afficher popup de confirmation
+            Optional<ButtonType> reponse = vuePendu.popUpPartieEnCours().showAndWait();
+            
+            if (reponse.isPresent() && reponse.get().equals(ButtonType.YES)) {
+                // L'utilisateur confirme l'interruption
+                vuePendu.modeAccueil();
+                vuePendu.getChrono().stop();
+                vuePendu.getChrono().resetTime();
+            }
+            // Sinon, on ne fait rien (reste en mode jeu)
+        } else {
+            // Pas de partie en cours, retour direct à l'accueil
+            vuePendu.modeAccueil();
+        }
     }
 }

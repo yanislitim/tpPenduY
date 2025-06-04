@@ -6,11 +6,10 @@ import javafx.util.Duration;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
-
 /**
  * Permet de gérer un Text associé à une Timeline pour afficher un temps écoulé
  */
-public class Chronometre extends Text{
+public class Chronometre extends Text {
     /**
      * timeline qui va gérer le temps
      */
@@ -29,10 +28,22 @@ public class Chronometre extends Text{
      * avec un label initialisé à "0:0:0"
      * Ce constructeur créer la Timeline, la KeyFrame et le contrôleur
      */
-    public Chronometre(){
+    public Chronometre() {
+        super("0:00");
+        
+        // Configuration du texte
+        this.setFont(Font.font("Arial", 16));
+        this.setTextAlignment(TextAlignment.CENTER);
+        
+        // Création du contrôleur
         this.actionTemps = new ControleurChronometre(this);
-        this.keyFrame = new KeyFrame(Duration.seconds(1), actionTemps); //  
-        this.timeline = new Timeline(keyFrame);
+        
+        // Création de la KeyFrame (mise à jour toutes les 10ms)
+        this.keyFrame = new KeyFrame(Duration.millis(10), this.actionTemps);
+        
+        // Création de la Timeline
+        this.timeline = new Timeline(this.keyFrame);
+        this.timeline.setCycleCount(Timeline.INDEFINITE); // Répétition infinie
     }
 
     /**
@@ -40,28 +51,34 @@ public class Chronometre extends Text{
      * la durée est affichée sous la forme m:s
      * @param tempsMillisec la durée depuis à afficher
      */
-    public void setTime(long tempsMillisec){
-        // A implémenter
+    public void setTime(long tempsMillisec) {
+        long minutes = tempsMillisec / 60000;
+        long secondes = (tempsMillisec % 60000) / 1000;
+        
+        this.setText(String.format("%d:%02d", minutes, secondes));
     }
 
     /**
      * Permet de démarrer le chronomètre
      */
-    public void start(){
-        this.timeline.setCycleCount(Animation.INDEFINITE); // 
+    public void start() {
+        this.actionTemps.reset();
+        this.timeline.play();
     }
 
     /**
      * Permet d'arrêter le chronomètre
      */
-    public void stop(){
-        // A implémenter
+    public void stop() {
+        this.timeline.stop();
     }
 
     /**
      * Permet de remettre le chronomètre à 0
      */
-    public void resetTime(){
-        // A implémenter
+    public void resetTime() {
+        this.timeline.stop();
+        this.actionTemps.reset();
+        this.setText("0:00");
     }
 }
