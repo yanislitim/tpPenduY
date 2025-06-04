@@ -134,7 +134,6 @@ public class Pendu extends Application {
         this.bJouer.setOnAction(new ControleurLancerPartie(this.modelePendu, this));
     }
 
-
     private Scene laScene() {
         BorderPane fenetre = new BorderPane();
         fenetre.setTop(this.titre());
@@ -174,7 +173,6 @@ public class Pendu extends Application {
 
         return banniere;
     }
-
 
     private TitledPane leChrono() {
         TitledPane res = new TitledPane();
@@ -216,7 +214,6 @@ public class Pendu extends Application {
     private Pane fenetreAccueil() {
         VBox res = new VBox(30);
 
-
         Text labelNiveau = new Text("Niveau de difficulté :");
         labelNiveau.setFont(Font.font("Arial", 18));
 
@@ -248,7 +245,6 @@ public class Pendu extends Application {
 
         return res;
     }
-
 
     private void chargerImages(String repertoire) {
         for (int i = 0; i < this.modelePendu.getNbErreursMax() + 1; i++) {
@@ -283,6 +279,7 @@ public class Pendu extends Application {
     public void modeParametres() {
         this.modeAccueil();
     }
+
     public void lancePartie() {
         try {
             this.modelePendu.setMotATrouver();
@@ -321,16 +318,17 @@ public class Pendu extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Règles du jeu");
         alert.setHeaderText("Comment jouer au pendu ?");
-        alert.setContentText("Le but du jeu est de trouver un mot mystère en proposant des lettres.\n\n" +
-                "• Si la lettre est dans le mot, elle s'affiche\n" +
-                "• Si la lettre n'est pas dans le mot, le pendu se dessine\n" +
-                "• Vous gagnez si vous trouvez le mot complet\n" +
-                "• Vous perdez si le pendu est entièrement dessiné\n\n" +
-                "Niveaux de difficulté :\n" +
-                "• Facile : première, dernière et une lettre aléatoire révélées\n" +
-                "• Moyen : première et dernière lettres révélées\n" +
-                "• Difficile : première lettre révélé\n" +
-                "• Expert : aucune aide");
+        alert.setContentText("Devinez un mot mystère en proposant des lettres une par une.\n\n" +
+                "• Si la lettre est présente, elle est dévoilée.\n" +
+                "• Sinon, une partie du pendu est dessinée.\n" +
+                "• Vous remportez la partie en trouvant tout le mot.\n" +
+                "• Vous perdez si le dessin du pendu est complet.\n\n" +
+                "Choix de la difficulté :\n" +
+                "• Facile : la première, la dernière et une lettre aléatoire sont révélées.\n" +
+                "• Moyen : seule la première et la dernière lettres sont affichées.\n" +
+                "• Difficile : uniquement la première lettre est connue.\n" +
+                "• Expert : aucune lettre révélée au départ.");
+
         return alert;
     }
 

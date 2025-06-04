@@ -66,15 +66,7 @@ public class MotMystere {
         this.initMotMystere(motATrouver, niveau, nbErreursMax);
     }
 
-    /**
-     * Constructeur dans lequel on va initialiser un dictionnaire pour choisir les mots à trouver
-     * @param nomFichier est le chemin vers le dictionnaire utilisé qui est un fichier texte
-     *  contenant une liste de mots (un mot par ligne)
-     * @param longMin longueur minimale des mots retenus dans le dictionnaire
-     * @param longMax longueur maximale des mots retenus dans le dictionnaire
-     * @param niveau niveau initial de jeu
-     * @param nbErreursMax le nombre total d'essais autorisés
-     */
+
     public MotMystere(String nomFichier, int longMin, int longMax, int niveau, int nbErreursMax) {
         super();
         this.dict = new Dictionnaire(nomFichier,longMin,longMax);
@@ -82,12 +74,7 @@ public class MotMystere {
         this.initMotMystere(motATrouver, niveau, nbErreursMax);
     }
 
-    /**
-     * initialisation du jeu
-     * @param motATrouver le mot à trouver
-     * @param niveau le niveau de jeu
-     * @param nbErreursMax  le nombre total d'essais autorisés
-     */
+
     private void initMotMystere(String motATrouver, int niveau, int nbErreursMax){
         this.niveau =niveau;
         this.nbEssais=0;
@@ -98,28 +85,28 @@ public class MotMystere {
         nbLettresRestantes=0;
         
         if (niveau == MotMystere.EXPERT){
-            motCrypte = "*"; // premiere lettre cachée
+            motCrypte = "*"; 
             this.nbLettresRestantes+=1;
         }
         else{
-            motCrypte += this.motATrouver.charAt(0); // premiere lettre révélée
+            motCrypte += this.motATrouver.charAt(0); 
         }
         
         if (niveau != MotMystere.FACILE){
             for (int i=1; i<motATrouver.length()-1; i++){
                 char lettre = this.motATrouver.charAt(i);
                 if (this.niveau == MotMystere.EXPERT || Character.isAlphabetic(lettre)){
-                    motCrypte += "*"; // lettre cachée
+                    motCrypte += "*"; 
                     this.nbLettresRestantes += 1;
                 }   
                 else{
-                    motCrypte += lettre; // lettre révélée si c'est un trait d'union ET qu'on n'est pas en mode Expert
+                    motCrypte += lettre; 
                 }
             }
         }
         else{
             Random nombreRandom = new Random(); 
-            int lettreaChanger = nombreRandom.nextInt(2, motATrouver.length()-1);//nombre aléatoire de la lettre à changer
+            int lettreaChanger = nombreRandom.nextInt(2, motATrouver.length()-1);
             for (int i=1; i<motATrouver.length()-1; i++){
                 char lettre = this.motATrouver.charAt(i);
                 if (i == lettreaChanger){
@@ -127,23 +114,22 @@ public class MotMystere {
                 }
                 else{
                     if (this.niveau == MotMystere.EXPERT || Character.isAlphabetic(lettre)){
-                        motCrypte += "*"; // lettre cachée
+                        motCrypte += "*"; 
                         this.nbLettresRestantes += 1;
                     }   
                     else{
-                        motCrypte += lettre; // lettre révélée si c'est un trait d'union ET qu'on n'est pas en mode Expert
+                        motCrypte += lettre; 
                     }
                 }
             }
         }
         
-        if (niveau == MotMystere.DIFFICILE || niveau == MotMystere.EXPERT){ // dernière lettre révélée
+        if (niveau == MotMystere.DIFFICILE || niveau == MotMystere.EXPERT){ 
             motCrypte += "*";
             this.nbLettresRestantes += 1;
         }
         else{
             motCrypte += this.motATrouver.charAt(motATrouver.length()-1);
-            // dernière lettre cachée
         }
         this.nbEerreursMax = nbErreursMax;
          this.nbErreursRestantes = nbErreursMax;
