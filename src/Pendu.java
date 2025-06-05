@@ -111,7 +111,7 @@ public class Pendu extends Application {
             imageViewMaison.setPreserveRatio(true);
             boutonMaison.setGraphic(imageViewMaison);
         } catch (Exception e) {
-            boutonMaison.setText("🏠");
+            boutonMaison.setText("Home");
         }
         boutonMaison.setOnAction(new RetourAccueil(this.modelePendu, this));
         boutonMaison.setTooltip(new Tooltip("Retour à l'accueil"));
@@ -147,7 +147,7 @@ public class Pendu extends Application {
 
         Text titre = new Text("Jeu du pendu");
         titre.setFont(Font.font("Arial", 24));
-        titre.setFill(Color.DARKBLUE);
+        titre.setFill(Color.BLACK);
 
         Button information = new Button();
         try {
@@ -169,7 +169,7 @@ public class Pendu extends Application {
 
         banniere.setLeft(titre);
         banniere.setRight(boutons);
-        banniere.setStyle("-fx-background-color:#d9f7fb;");
+        banniere.setStyle("-fx-background-color:#e6e6ff;");
 
         return banniere;
     }
@@ -182,40 +182,48 @@ public class Pendu extends Application {
         return res;
     }
 
-    private Pane fenetreJeu() {
-        BorderPane res = new BorderPane();
+private Pane fenetreJeu() {
+    BorderPane res = new BorderPane();
 
-        VBox partie1 = new VBox(20);
-        partie1.setPadding(new Insets(20));
+    VBox partie1 = new VBox(20);
+    partie1.setPadding(new Insets(20));
 
-        this.motCrypte.setFont(Font.font("Arial", 32));
+    this.motCrypte.setFont(Font.font("Arial", 32));
 
-        // Image du pendu
-        this.dessin.setFitWidth(200);
-        this.dessin.setFitHeight(200);
-        this.dessin.setPreserveRatio(true);
+    // Image du pendu
+    this.dessin.setFitWidth(300);
+    this.dessin.setFitHeight(300);
+    this.dessin.setPreserveRatio(true);
 
-        this.pg.setPrefWidth(300);
-        this.pg.setProgress(1.0);
-        VBox progressBox = new VBox(5);
-        progressBox.getChildren().addAll(this.pg);
+    this.pg.setPrefWidth(300);
+    this.pg.setProgress(1.0);
 
-        partie1.getChildren().addAll(this.motCrypte, this.dessin, progressBox, this.clavier);
+    HBox imageBox = new HBox(this.dessin);
+    imageBox.setAlignment(Pos.CENTER);
 
-        VBox partie2 = new VBox(20);
-        partie2.getChildren().addAll(this.leNiveau, this.leChrono());
+    HBox progressBox = new HBox(this.pg);
+    progressBox.setAlignment(Pos.CENTER);
 
-        res.setCenter(partie1);
-        res.setRight(partie2);
+    partie1.getChildren().addAll(this.motCrypte, imageBox, progressBox, this.clavier);
 
-        return res;
-    }
+    VBox partie2 = new VBox(20);
+    partie2.setPadding(new Insets(0, 20, 0, 0)); // Ajoute un padding à droite
+
+    // Bouton "Nouveau mot"
+    Button boutonNouveauMot = new Button("Nouveau mot");
+    boutonNouveauMot.setOnAction(e -> this.lancePartie());
+
+    partie2.getChildren().addAll(this.leNiveau, this.leChrono(), boutonNouveauMot);
+
+    res.setCenter(partie1);
+    res.setRight(partie2);
+
+    return res;
+}
+
 
     private Pane fenetreAccueil() {
         VBox res = new VBox(30);
-
-        Text labelNiveau = new Text("Niveau de difficulté :");
-        labelNiveau.setFont(Font.font("Arial", 18));
 
         ToggleGroup groupeNiveau = new ToggleGroup();
         VBox niveauxBox = new VBox(10);
@@ -238,9 +246,14 @@ public class Pendu extends Application {
         expert.setOnAction(new ControleurNiveau(this.modelePendu));
 
         niveauxBox.getChildren().addAll(facile, moyen, difficile, expert);
+        niveauxBox.setPadding(new Insets(10));
+
+        TitledPane boiteNiveaux = new TitledPane("Niveau de difficulté", niveauxBox);
+        boiteNiveaux.setCollapsible(false);
+
         this.bJouer.setFont(Font.font("Arial", 18));
 
-        res.getChildren().addAll(this.bJouer, labelNiveau, niveauxBox);
+        res.getChildren().addAll(this.bJouer, boiteNiveaux);
         res.setPadding(new Insets(20));
 
         return res;
@@ -318,19 +331,19 @@ public class Pendu extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Règles du jeu");
         alert.setHeaderText("Comment jouer au pendu ?");
-        alert.setContentText("Devinez un mot mystère en proposant des lettres une par une.\n\n" +
-                "• Si la lettre est présente, elle est dévoilée.\n" +
-                "• Sinon, une partie du pendu est dessinée.\n" +
-                "• Vous remportez la partie en trouvant tout le mot.\n" +
-                "• Vous perdez si le dessin du pendu est complet.\n\n" +
-                "Choix de la difficulté :\n" +
-                "• Facile : la première, la dernière et une lettre aléatoire sont révélées.\n" +
-                "• Moyen : seule la première et la dernière lettres sont affichées.\n" +
-                "• Difficile : uniquement la première lettre est connue.\n" +
-                "• Expert : aucune lettre révélée au départ.");
-
+        alert.setContentText(
+            "Proposez des lettres pour deviner le mot mystère.\n" +
+            "• Bonne lettre : elle s'affiche.\n" +
+            "• Mauvaise lettre : le pendu avance.\n" +
+            "• Gagnez en trouvant le mot, perdez si le dessin est complet.\n\n" +
+            "Difficultés :\n" +
+            "• Facile : 3 lettres visibles.\n" +
+            "• Moyen : 2 lettres visibles.\n" +
+            "• Difficile : 1 lettre visible.\n" +
+            "• Expert : aucune aide.");
         return alert;
     }
+
 
     public Alert popUpMessageGagne() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
